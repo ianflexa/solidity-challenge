@@ -3,7 +3,7 @@ const hre = require("hardhat");
 async function main() {
 
     const Stake = await hre.ethers.getContractFactory("StakingETH");
-    const stake = await Stake.deploy("0xaA62A6470811beaE2c4090f41Ce4Eb40b6A2B477"); //test
+    const stake = await Stake.deploy("0xEE33602Dc7B6B5468Bc2b01B9385AC4a6EB3C807"); //test
     
     await stake.deployed();
 
