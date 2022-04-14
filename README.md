@@ -9,8 +9,8 @@
 
 <h3> Verified Contracts on Rinkeby testnet: </h3>
 
-- <a target= "_blank" href="https://rinkeby.etherscan.io/address/0x351a8797FeFFf378bb0a781bdFA61eb63ae504Ce#code">Staking Contract</a>
-- <a target= "_blank" href="https://rinkeby.etherscan.io/address/0xaa62a6470811beae2c4090f41ce4eb40b6a2b477#code">devUSDC Contract</a>
+- <a target= "_blank" href="https://rinkeby.etherscan.io/address/0x24974e1304729e02f92945a1c54109737ebc55c5#code">Staking Contract</a>
+- <a target= "_blank" href="https://rinkeby.etherscan.io/address/0xEE33602Dc7B6B5468Bc2b01B9385AC4a6EB3C807#code">devUSDC Contract</a>
 
 
 # Basic Sample Hardhat Project
