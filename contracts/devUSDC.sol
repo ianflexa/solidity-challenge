@@ -34,7 +34,7 @@ contract DevUSDC is ERC20, ERC20Burnable, Ownable {
         require(msg.value > 0, "insufficient funds to mint devUSDC");
         uint currentPrice;
         (currentPrice, lastPriceAdjustment) = getLatestPrice();
-        stableAmount = (currentPrice * 10e10) * msg.value;
+        stableAmount = (currentPrice * 10e10)  * msg.value / 10e18;
         balances[msg.sender] += stableAmount;
         _mint(msg.sender, stableAmount);
         emit mintdUSD(msg.sender, stableAmount);
@@ -45,7 +45,7 @@ contract DevUSDC is ERC20, ERC20Burnable, Ownable {
         uint currentPrice;
         (currentPrice, lastPriceAdjustment) = getLatestPrice();
         require(stableAmount >= (currentPrice * 10e10), "min withdraw is 1 eth");
-        ethAmount = stableAmount / (currentPrice * 10e10);
+        ethAmount = (stableAmount / currentPrice * 10e10) / 10e18;
         require(address(this).balance >= ethAmount, "not enough funds for this transaction");
         balances[msg.sender] -= stableAmount;
         burn(stableAmount);
