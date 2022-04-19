@@ -1,27 +1,23 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.7;
 
+import "@chainlink/contracts/src/v0.8/interfaces/AggregatorV3Interface.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 
 contract StakingETH is ReentrancyGuard{
-
+    AggregatorV3Interface internal priceFeed;
     IERC20 public devUSDC;
 
-    uint256 private lastUpdateTime; // last time the contract was call
-    uint256 private rewardPerTokenStored; // reward rate / total stake supply at each given time
-    uint256 private _totalSupply; // total staken in this contract
-    uint256 private constant REWARD_RATE = 100; //  0.00100% or 10% APR
+    uint256 private lastUpdateTime; 
+    uint256 private rewardPerTokenStored; 
+    uint256 private _totalSupply; 
+    uint256 private constant REWARD_RATE = 47500000000;
 
     event Staked(address indexed user, uint256 indexed amount);
     event WithdrewStake(address indexed user, uint256 indexed amount);
     event RewardsClaimed(address indexed user, uint256 indexed amount);
 
-
-    //first we need to update the reward/token stored
-    // second we update the last update tima
-    //store on the rewards mapping the amount of token earned until now
-    // then update user reward/token paid with the reward/token stored
     modifier updateReward(address account) {
         rewardPerTokenStored = rewardPerToken();
         lastUpdateTime = block.timestamp;
@@ -31,22 +27,18 @@ contract StakingETH is ReentrancyGuard{
         _;
     }
 
-    mapping(address => uint256) public userRewardPerTokenPaid; // store the reward per token stored when users interact with the contract
-    mapping(address => uint256) public rewards; // update the reward if user withdraw or staking more tokens
-    mapping(address => uint256) private _balances; // n tokens staked per user
-
+    mapping(address => uint256) private userRewardPerTokenPaid;
+    mapping(address => uint256) public rewards;
+    mapping(address => uint256) public _balances;
+/* 0x8A753747A1Fa494EC906cE90E9f37563A8AF630e  rinkeby */ 
     constructor(address _devUSDC) {
+        priceFeed = AggregatorV3Interface(0x5f4eC3Df9cbd43714FE2740f5E3616155c5b8419);
         devUSDC = IERC20(_devUSDC);
     }
 
     /* External Functions */
 
-
-    // first update the reward
-    //second update the total supply of the contract
-    // third update the balance of msg.sender
-    // finally emit staked event
-    function stakeETH()
+    function stake()
         external
         payable
         nonReentrant
@@ -63,7 +55,7 @@ contract StakingETH is ReentrancyGuard{
     //second update the total supply of the contract
     // third update the balance of msg.sender
     // finally emit staked event
-    function withdrawETH(uint256 _amount)
+    function withdraw(uint256 _amount)
         external
         nonReentrant
         updateReward (msg.sender)
@@ -87,7 +79,7 @@ contract StakingETH is ReentrancyGuard{
         updateReward (msg.sender)
     {
         require(rewards[msg.sender] > 0, "no rewards to claim");
-        uint256 reward = rewards[msg.sender];
+        uint reward = rewardUSDC(msg.sender);
         rewards[msg.sender] = 0;
         devUSDC.transfer(msg.sender, reward);
 
@@ -96,7 +88,7 @@ contract StakingETH is ReentrancyGuard{
 
     /* Getter Functions */
 
-    function rewardPerToken() public view returns (uint256) {
+    function rewardPerToken() private view returns (uint256) {
         if (_totalSupply == 0) {
             return rewardPerTokenStored;
         }
@@ -105,19 +97,44 @@ contract StakingETH is ReentrancyGuard{
             (((block.timestamp - lastUpdateTime) * REWARD_RATE * 1e18) / _totalSupply);
     }
 
-    function earned(address account) public view returns (uint256) {
+    function earned(address account) private view returns (uint256) {
         return
             ((_balances[account] *
                 (rewardPerToken() - userRewardPerTokenPaid[account])) / 1e18) +
             rewards[account];
     }
 
-    function getLastUpdateTime() public view returns (uint256) {
-        return lastUpdateTime;
+    function getRewardPerTokenStoredUSDC() public view returns (uint256) {
+        return ((getEthPrice() * 10e9) * (rewardPerTokenStored)/1e18);
     }
 
-    function getRewardPerTokenStored() public view returns (uint256) {
-        return rewardPerTokenStored;
+    function rewardPerTokenUSDC() public view returns (uint256) {
+        return ((getEthPrice() * 10e9) * (rewardPerToken())/1e18);
+    }
+
+    function earnedUSDC(address account) public view returns (uint256) {
+        return ((getEthPrice() * 10e9) * (earned(account))/1e18);
+    }
+
+    function rewardUSDC(address account) public view returns (uint256) {
+        return ((getEthPrice() * 10e9) * (rewards[account])/1e18);
+    }
+
+    function _balancesUSDC(address account) public view returns (uint256) {
+        return ((getEthPrice() * 10e9) * (_balances[account])/1e18);
+    }
+
+    function userRewardPerTokenPaidUSDC(address account) public view returns (uint256) {
+        return ((getEthPrice() * 10e9) * (userRewardPerTokenPaid[account])/1e18);
+    }
+
+    function getEthPrice() public view returns(uint256) {
+        (,int price,,,) = priceFeed.latestRoundData();
+        return (uint256(price));
+    }
+
+    function getLastUpdateTime() public view returns (uint256) {
+        return lastUpdateTime;
     }
 
     function getTotalSupply() public view returns (uint256) {
