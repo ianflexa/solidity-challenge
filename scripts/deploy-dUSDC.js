@@ -2,8 +2,8 @@ const hre = require("hardhat");
 
 async function main() {
 
-    const DevUSDC = await hre.ethers.getContractFactory("DevUSDC");
-    const dUSDC = await DevUSDC.deploy({value: hre.ethers.utils.parseEther('1.0'),});
+    const DevUSDC = await hre.ethers.getContractFactory("Usdc");
+    const dUSDC = await DevUSDC.deploy();
     
     await dUSDC.deployed();
 
