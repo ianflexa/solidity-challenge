@@ -160,14 +160,14 @@ describe("Staking Challenge Tests", function () {
             const timestampBefore = blockBefore.timestamp;
         
             // skip time
-            const xtito = await network.provider.send("evm_setNextBlockTimestamp", [1650284045]);
-            const times  = await network.provider.send("evm_mine");
+            const fastFoward = await network.provider.send("evm_setNextBlockTimestamp", [1650327621]); //Tuesday, 19 April 2022 00:20:21
+            const mine  = await network.provider.send("evm_mine");
         
             // after timestamp
             const blockNumAfter = await ethers.provider.getBlockNumber();
             const blockAfter = await ethers.provider.getBlock(blockNumAfter);
             const timestampAfter = blockAfter.timestamp;
-            expect(1650284045).to.equal(timestampAfter);
+            expect(1650327621).to.equal(timestampAfter);
         
             // withdraw
             // owner
@@ -194,7 +194,6 @@ describe("Staking Challenge Tests", function () {
             //withdraw rewards
             // owner
             const ownerRewardsBalance = await stakev5.rewards(owner.getAddress());
-            //console.log("Owner Rewards Balance: ", (ownerRewardsBalance).toString());
             const ownerissueToken = await stakev5.claimdevUSDC();
             const ownerTokenBalance = await rToken.balanceOf(owner.getAddress());
             console.log("owner devUSDC balance: ", (ownerTokenBalance).toString())
