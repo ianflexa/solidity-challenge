@@ -160,6 +160,7 @@ describe("Staking Challenge Tests", function () {
             const timestampBefore = blockBefore.timestamp;
         
             // skip time
+            //if you are going to test, put the timestamp (1650327621) a year after the blocknumber you put into hardhat.config
             const fastFoward = await network.provider.send("evm_setNextBlockTimestamp", [1650327621]); //Tuesday, 19 April 2022 00:20:21
             const mine  = await network.provider.send("evm_mine");
         
